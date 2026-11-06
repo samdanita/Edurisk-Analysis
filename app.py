@@ -1,14 +1,17 @@
 import streamlit as st
 import pandas as pd
+import streamlit as st
+import pandas as pd
+import plotly.express as px
 
-#Step 7: Update Page Configuration
+#Step 9: Update Page Configuration
 st.set_page_config(
-    page_title="EduRisk Analytics - Lab 04",
+    page_title="EduRisk Analytics - Lab 05",
     page_icon="🎓",
     layout="wide"
 )
 
-# Step 8: Keep CSV Loading from Lab 03
+# Step 10: Keep CSV Loading from Lab 04
 def load_student_data():
     try:
         data = pd.read_csv("students.csv")
@@ -19,7 +22,7 @@ def load_student_data():
         )
         st.stop()
         
-# Step 10: Keep the Risk Level Function
+# Step 12: Keep the Risk Level Function
 def get_risk_level(score, attendance):
     if score < 60 or attendance < 60:
         return "High Risk"
@@ -28,14 +31,14 @@ def get_risk_level(score, attendance):
     else:
         return "Low Risk"
     
-# Step 9: Keep Loading the Student Data
+# Step 11: Keep Loading the Student Data
 student_df = load_student_data()
 total_students = len(student_df)
 average_score = student_df["Score"].mean()
 average_attendance = student_df["Attendance"].mean()
 low_score_students = student_df[student_df["Score"] < 60].shape[0]
 
-# Step 11: Keep the Risk Level Column
+# Step 13: Keep the Risk Level Column
 student_df["Risk Level"] = student_df.apply(
     lambda row: get_risk_level(
         row["Score"],
@@ -44,7 +47,7 @@ student_df["Risk Level"] = student_df.apply(
     axis=1
 )
 
-# Step 12: Initialize Session State
+# Step 14: Keep Session State from Lab 04
 if "risk_history" not in st.session_state:
     st.session_state["risk_history"] = []
 
@@ -90,7 +93,7 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-# Step 13: Keep Sidebar Navigation
+# Step 15: Keep Sidebar Navigation
 with st.sidebar:
     st.markdown(
         """
@@ -116,161 +119,212 @@ with st.sidebar:
         label_visibility="collapsed",
     )
 
-# Step 14: Update the Home Page
+# Step 16: Update the Home Page
 if selected_page == "Home":
     st.title("🎓 EduRisk Analytics")
-    st.subheader("Reliable Risk Checker with Forms and Session State")
-    st.write("Welcome to Lab 04.")
+    st.subheader("Interactive Dashboard with Visualization and Filters")
+    st.write("Welcome to Lab 05.")
     st.write(
-        "In this lab, the app improves the Risk Checker page using "
-        "Streamlit forms, input validation, and session state."
+        "In this lab, the app improves the Dashboard page using "
+        "grouped summaries, interactive filters, Streamlit charts, and Plotly charts."
     )
-    st.success("Lab 04 app is running successfully!")
+    st.success("Lab 05 app is running successfully!")
 
 # Dashboard page
-# Step 15: Keep the Dashboard Page from Lab 03
+# Step 17: Replace the Old Dashboard Page
 elif selected_page == "Dashboard":
-    st.markdown(
-        """
-        <style>
-        .dashboard-title {
-            font-size: 2.2rem;
-            font-weight: 800;
-            color: #1f2937;
-            margin-bottom: 0.25rem;
-        }
-        .dashboard-subtitle {
-            font-size: 1.1rem;
-            color: #4b5563;
-            background: linear-gradient(135deg, #f3f6ff, #eefaf5);
-            border: 1px solid #dfe7ff;
-            border-radius: 16px;
-            padding: 1rem 1.1rem;
-            margin: 0 0 1rem;
-            box-shadow: 0 4px 12px rgba(15, 23, 42, 0.05);
-        }
-        .stat-card {
-            background: linear-gradient(135deg, #2563eb, #3b82f6);
-            border-radius: 18px;
-            padding: 1.1rem 1rem;
-            height: 150px;
-            color: white;
-            border: 1px solid rgba(255,255,255,0.2);
-            box-shadow: 0 8px 20px rgba(37, 99, 235, 0.25);
-            margin-bottom: 1rem;
-        }
-        .stat-icon {
-            font-size: 1.8rem;
-            margin-bottom: 0.6rem;
-        }
-        .stat-value {
-            font-size: 2rem;
-            font-weight: 800;
-            line-height: 1.1;
-        }
-        .stat-label {
-            margin-top: 0.2rem;
-            font-size: 0.9rem;
-            opacity: 0.95;
-            text-transform: uppercase;
-            letter-spacing: 0.04em;
-        }
-        .section-title {
-            font-size: 1.3rem;
-            font-weight: 700;
-            color: #111827;
-            margin-top: 1rem;
-            margin-bottom: 0.7rem;
-        }
-        .data-panel {
-            background: #ffffff;
-            border: 1px solid #e5e7eb;
-            border-radius: 16px;
-            padding: 0.8rem;
-            box-shadow: 0 4px 12px rgba(15, 23, 42, 0.04);
-        }
-        </style>
-        """,
-        unsafe_allow_html=True,
-    )
+    st.title("Interactive Student Performance Dashboard")
 
-    st.markdown(
-        '<div class="dashboard-title">Dashboard Prototype</div>',
-        unsafe_allow_html=True,
+    st.write(
+        "Use filters to explore student performance by course, risk level, "
+        "and attendance. The dashboard updates based on your selections."
     )
-    st.markdown(
-        '<div class="dashboard-subtitle">This dashboard gives a quick overview of student performance using data loaded from students.csv.</div>',
-        unsafe_allow_html=True,
-    )
+    # Step 19: Add Dashboard Filters Section
+    st.subheader("Dashboard Filters")
 
-    total_students = len(student_df)
-    average_score = student_df["Score"].mean()
-    average_attendance = student_df["Attendance"].mean()
-    high_risk_students = student_df[
-        student_df["Risk Level"] == "High Risk"
-    ].shape[0]
+    filter_col1, filter_col2, filter_col3 = st.columns(3)
+    # Step 20: Add Course Filter
+    with filter_col1:
+        course_options = ["All"] + sorted(student_df["Course"].unique())
+        selected_course = st.selectbox(
+            "Filter by Course",
+            course_options
+        )
+    # Step 21: Add Risk Level Filter
+    with filter_col2:
+        risk_options = ["All"] + sorted(student_df["Risk Level"].unique())
+        selected_risk = st.selectbox(
+            "Filter by Risk Level",
+            risk_options
+        )
+    # Step 22: Add Attendance Slider
+    with filter_col3:
+        minimum_attendance = st.slider(
+            "Minimum Attendance",
+            0,
+            100,
+            0
+        )
+    #Step 23: Create filtered_df
+        filtered_df = student_df.copy()
 
-    st.markdown(
-        '<div class="section-title">📌 Dashboard Metrics</div>',
-        unsafe_allow_html=True,
-    )
-    metric_cols = st.columns(4)
-    metrics = [
-        {"icon": "👨‍🎓", "label": "Students", "value": str(total_students)},
-        {
-            "icon": "📊",
-            "label": "Average Score",
-            "value": f"{average_score:.2f}",
-        },
-        {
-            "icon": "📅",
-            "label": "Average Attendance",
-            "value": f"{average_attendance:.2f}%",
-        },
-        {"icon": "⚠️", "label": "High Risk", "value": str(high_risk_students)},
+    if selected_course != "All":
+        filtered_df = filtered_df[
+            filtered_df["Course"] == selected_course
+        ]
+
+    if selected_risk != "All":
+        filtered_df = filtered_df[
+            filtered_df["Risk Level"] == selected_risk
+        ]
+
+    filtered_df = filtered_df[
+        filtered_df["Attendance"] >= minimum_attendance
     ]
-    for col, metric in zip(metric_cols, metrics):
-        with col:
-            st.markdown(
-                f"""
-                <div class="stat-card">
-                    <div class="stat-icon">{metric['icon']}</div>
-                    <div class="stat-value">{metric['value']}</div>
-                    <div class="stat-label">{metric['label']}</div>
-                </div>
-                """,
-                unsafe_allow_html=True,
+    # Step 24: Handle Empty Filter Results
+    if filtered_df.empty:
+        st.warning("No students match the selected filters. Please adjust the filters.")
+    # Step 25: Add Filtered Metrics
+        st.subheader("Filtered Dashboard Metrics")
+
+    filtered_total_students = len(filtered_df)
+
+    if filtered_total_students > 0:
+        filtered_average_score = filtered_df["Score"].mean()
+        filtered_average_attendance = filtered_df["Attendance"].mean()
+        filtered_high_risk_students = filtered_df[
+            filtered_df["Risk Level"] == "High Risk"
+        ].shape[0]
+    else:
+        filtered_average_score = 0
+        filtered_average_attendance = 0
+        filtered_high_risk_students = 0
+    # Step 26: Display Filtered Metric Cards
+    metric_col1, metric_col2, metric_col3, metric_col4 = st.columns(4)
+
+    with metric_col1:
+        st.metric("Students", filtered_total_students)
+
+    with metric_col2:
+        st.metric("Average Score", round(filtered_average_score, 2))
+
+    with metric_col3:
+        st.metric(
+            "Average Attendance",
+            f"{round(filtered_average_attendance, 2)}%"
+        )
+
+    with metric_col4:
+        st.metric("High Risk", filtered_high_risk_students)
+    # Step 27: Add Course Summary Table
+    st.subheader("Course Summary")
+
+    if filtered_total_students > 0:
+        course_summary = filtered_df.groupby("Course").agg(
+            Students=("Student Name", "count"),
+            Average_Score=("Score", "mean"),
+            Average_Attendance=("Attendance", "mean"),
+            Average_Study_Hours=("Study Hours", "mean")
+        ).reset_index()
+
+        st.dataframe(course_summary)
+    else:
+        st.info("No course summary available for the selected filters.")    
+    # Step 28: Add Risk Level Summary Table
+        st.subheader("Risk Level Summary")
+
+    if filtered_total_students > 0:
+        risk_summary = filtered_df["Risk Level"].value_counts().reset_index()
+        risk_summary.columns = ["Risk Level", "Students"]
+
+        st.dataframe(risk_summary)
+    else:
+        st.info("No risk summary available for the selected filters.")
+    #Step 29: Add Streamlit Charts Section
+        st.subheader("Streamlit Charts")
+
+    chart_col1, chart_col2 = st.columns(2)
+    # Step 30: Add Student Score Chart
+    with chart_col1:
+        st.write("Student Scores")
+
+        if filtered_total_students > 0:
+            score_chart = filtered_df.set_index("Student Name")["Score"]
+            st.bar_chart(score_chart)
+        else:
+            st.info("No score chart available.")
+    # Step 31: Add Course Count Chart
+    with chart_col2:
+        st.write("Students by Course")
+
+        if filtered_total_students > 0:
+            course_count = filtered_df["Course"].value_counts()
+            st.bar_chart(course_count)
+        else:
+            st.info("No course count chart available.")
+    # Step 32: Add Plotly Charts Section
+    st.subheader("Interactive Plotly Charts")
+
+    plotly_col1, plotly_col2 = st.columns(2)
+    # Step 33: Add Plotly Risk Distribution Chart
+    with plotly_col1:
+        st.write("Risk Level Distribution")
+
+        if filtered_total_students > 0:
+            risk_summary_chart = filtered_df["Risk Level"].value_counts().reset_index()
+            risk_summary_chart.columns = ["Risk Level", "Students"]
+
+            fig_risk = px.bar(
+                risk_summary_chart,
+                x="Risk Level",
+                y="Students",
+                color="Risk Level",
+                title="Risk Level Distribution",
+                color_discrete_map={
+                    "Low Risk": "#16A34A",
+                    "Medium Risk": "#F59E0B",
+                    "High Risk": "#DC2626"
+                }
             )
 
-    st.markdown(
-        '<div class="section-title">📋 Student Records</div>',
-        unsafe_allow_html=True,
-    )
-    st.write("This table shows student data loaded from students.csv.")
-    st.markdown('<div class="data-panel">', unsafe_allow_html=True)
-    st.dataframe(student_df, use_container_width=True, hide_index=True)
-    st.markdown("</div>", unsafe_allow_html=True)
+            st.plotly_chart(fig_risk, use_container_width=True)
+        else:
+            st.info("No risk distribution chart available.")
+    # Step 34: Add Plotly Score by Student Chart
+    with plotly_col2:
+        st.write("Student Scores by Risk Level")
 
-    st.markdown(
-        '<div class="section-title">📈 Charts</div>',
-        unsafe_allow_html=True,
-    )
-    chart_col1, chart_col2 = st.columns(2)
-    with chart_col1:
-        st.markdown("#### Student Score Chart")
-        score_chart = student_df.set_index("Student Name")["Score"]
-        st.bar_chart(score_chart, use_container_width=True)
-    with chart_col2:
-        st.markdown("#### Course Count")
-        course_count = student_df["Course"].value_counts()
-        st.bar_chart(course_count, use_container_width=True)
+        if filtered_total_students > 0:
+            fig_score = px.bar(
+                filtered_df,
+                x="Student Name",
+                y="Score",
+                color="Risk Level",
+                title="Student Scores by Risk Level",
+                color_discrete_map={
+                    "Low Risk": "#16A34A",
+                    "Medium Risk": "#F59E0B",
+                    "High Risk": "#DC2626"
+                }
+            )
 
-    st.info(
-        "Ethics Reminder: Academic monitoring should support students, "
-        "not label or punish them."
+            st.plotly_chart(fig_score, use_container_width=True)
+        else:
+            st.info("No score chart available.")
+    # Step 35: Add Filtered Student Records Table
+    st.subheader("Filtered Student Records")
+
+    if filtered_total_students > 0:
+        st.dataframe(filtered_df)
+    else:
+        st.info("No student records to display.")
+    # Step 36: Add Ethical Visualization Reminder
+    st.warning(
+        "Ethics Reminder: Visualizations should support students and guide "
+        "academic support decisions, not label or punish students."
     )
 
-# Step 16: Keep the Student Data Page from Lab 03
+# Step 37: Keep the Student Data Page from Lab 04
 elif selected_page == "Student Data":
     st.title("Student Data")
 
@@ -374,22 +428,22 @@ elif selected_page == "Risk Checker":
         "not as final judgment about a student."
     )
 
-#Step 31: Update the About Page
+# Step 39: Update the About Page
 else:
     st.title("About")
 
-    st.write("This app is part of Lab 04.")
+    st.write("This app is part of Lab 05.")
     st.write("Course: Web App Development for Data Science")
     st.write("Project Theme: EduRisk Analytics")
-    st.write("Topic: Forms, Validation, and Session State")
+    st.write("Topic: Visualization and Interactivity")
 
     st.info(
-        "This version improves the Risk Checker page using Streamlit forms, "
-        "input validation, and session state."
+        "This version improves the Dashboard page using grouped summaries, "
+        "interactive filters, Streamlit charts, and Plotly charts."
     )
 
     st.warning(
-        "Ethics Reminder: Student risk information should be used responsibly "
-        "to support learning and student success."
+        "Ethics Reminder: Student performance visualizations should be used "
+        "responsibly to support learning and student success."
     )
     
